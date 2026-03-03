@@ -1,0 +1,108 @@
+{
+  "projectType": "saas",
+  "projectName": "QuickChat",
+  "projectDescription": "A real-time web chat application with user authentication, messaging, and online status tracking.",
+  "theme": "almond",
+  "primaryColor": "#10B981",
+  "lightColor": "#34D399",
+  "darkColor": "#059669",
+  "navigation": {
+    "tabs": [
+      {
+        "tab": "Documentation",
+        "groups": [
+          {
+            "group": "Get Started",
+            "pages": [
+              "introduction",
+              "quickstart",
+              "installation"
+            ]
+          },
+          {
+            "group": "Deployment",
+            "pages": [
+              "deployment/overview",
+              "deployment/client",
+              "deployment/server",
+              "deployment/environment"
+            ]
+          },
+          {
+            "group": "Architecture",
+            "pages": [
+              "architecture/overview",
+              "architecture/database",
+              "architecture/websockets"
+            ]
+          }
+        ]
+      },
+      {
+        "tab": "Features",
+        "groups": [
+          {
+            "group": "Core Features",
+            "pages": [
+              "features/authentication",
+              "features/messaging",
+              "features/real-time",
+              "features/profiles",
+              "features/media"
+            ]
+          }
+        ]
+      },
+      {
+        "tab": "API Reference",
+        "groups": [
+          {
+            "group": "Authentication",
+            "pages": [
+              "api/auth/signup",
+              "api/auth/login",
+              "api/auth/check"
+            ]
+          },
+          {
+            "group": "Users",
+            "pages": [
+              "api/users/get-users",
+              "api/users/update-profile"
+            ]
+          },
+          {
+            "group": "Messages",
+            "pages": [
+              "api/messages/send",
+              "api/messages/get",
+              "api/messages/mark-seen"
+            ]
+          }
+        ]
+      }
+    ]
+  },
+  "keyFeatures": [
+    "Real-time messaging with Socket.io",
+    "User authentication and authorization",
+    "Profile management with image uploads",
+    "Online/offline status tracking",
+    "Read receipts and message seen status",
+    "Image sharing in messages",
+    "Responsive React frontend"
+  ],
+  "publicApiSurface": [
+    "POST /api/auth/signup",
+    "POST /api/auth/login",
+    "GET /api/auth/check",
+    "PUT /api/auth/update-profile",
+    "GET /api/messages/users",
+    "GET /api/messages/:id",
+    "POST /api/messages/send/:id",
+    "PUT /api/messages/mark/:id",
+    "Socket: connection",
+    "Socket: getOnlineUsers",
+    "Socket: newMessage"
+  ]
+}

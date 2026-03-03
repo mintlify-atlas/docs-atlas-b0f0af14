@@ -1,0 +1,298 @@
+---
+title: Client deployment
+description: Deploy the QuickChat React client to production with Vite and Vercel
+---
+
+The QuickChat client is a React application built with Vite, Tailwind CSS, and Socket.IO for real-time communication. This guide covers deploying it to production.
+
+## Prerequisites
+
+Before deploying the client, ensure you have:
+
+- Deployed and configured the [QuickChat server](/deployment/server)
+- The server's public URL (e.g., `https://your-server.vercel.app`)
+- A Vercel account (or alternative hosting platform)
+
+## Technology stack
+
+The client application uses:
+
+- **React 19** - UI framework
+- **Vite 6** - Build tool and development server
+- **Tailwind CSS 4** - Styling framework
+- **React Router 7** - Client-side routing
+- **Socket.IO Client** - Real-time WebSocket communication
+- **Axios** - HTTP client for API requests
+
+## Deploying to Vercel
+
+<Steps>
+  <Step title="Configure environment variables">
+    Create a `.env` file in the client directory with your backend URL:
+    
+    ```bash .env
+    VITE_BACKEND_URL=https://your-server.vercel.app
+    ```
+    
+    <Warning>
+    The environment variable must be prefixed with `VITE_` to be exposed to the client code.
+    </Warning>
+  </Step>
+  
+  <Step title="Install Vercel CLI (optional)">
+    Install the Vercel CLI for command-line deployment:
+    
+    ```bash
+    npm install -g vercel
+    ```
+  </Step>
+  
+  <Step title="Deploy via CLI">
+    Navigate to the client directory and run:
+    
+    ```bash
+    cd client
+    vercel
+    ```
+    
+    Follow the prompts to configure your project. The CLI will:
+    - Detect the Vite framework automatically
+    - Use the build settings from `package.json`
+    - Deploy to a preview URL
+  </Step>
+  
+  <Step title="Configure environment variables in Vercel">
+    In the Vercel dashboard:
+    
+    1. Go to your project settings
+    2. Navigate to "Environment Variables"
+    3. Add `VITE_BACKEND_URL` with your server URL
+    4. Click "Save"
+  </Step>
+  
+  <Step title="Deploy to production">
+    Deploy to production:
+    
+    ```bash
+    vercel --prod
+    ```
+  </Step>
+</Steps>
+
+## Deploying via GitHub
+
+For automatic deployments from GitHub:
+
+<Steps>
+  <Step title="Connect repository to Vercel">
+    1. Go to [Vercel Dashboard](https://vercel.com/dashboard)
+    2. Click "Add New Project"
+    3. Import your GitHub repository
+    4. Select the `client` directory as the root
+  </Step>
+  
+  <Step title="Configure build settings">
+    Vercel will auto-detect Vite. Verify these settings:
+    
+    <ParamField path="Framework Preset" type="string">
+      Vite
+    </ParamField>
+    
+    <ParamField path="Build Command" type="string">
+      `npm run build` or `vite build`
+    </ParamField>
+    
+    <ParamField path="Output Directory" type="string">
+      `dist`
+    </ParamField>
+    
+    <ParamField path="Install Command" type="string">
+      `npm install`
+    </ParamField>
+  </Step>
+  
+  <Step title="Add environment variables">
+    In the Vercel project settings, add:
+    
+    ```bash
+    VITE_BACKEND_URL=https://your-server.vercel.app
+    ```
+  </Step>
+  
+  <Step title="Deploy">
+    Click "Deploy" to start the build. Vercel will automatically deploy on every push to your main branch.
+  </Step>
+</Steps>
+
+## Vercel configuration
+
+The client includes a `vercel.json` configuration file:
+
+```json vercel.json
+{
+  "rewrites": [
+    {
+      "source": "/(.*)",
+      "destination": "/"
+    }
+  ]
+}
+```
+
+This configuration ensures all routes are handled by React Router for client-side routing.
+
+## Build configuration
+
+### Package.json scripts
+
+```json package.json
+{
+  "scripts": {
+    "dev": "vite",
+    "build": "vite build",
+    "preview": "vite preview"
+  }
+}
+```
+
+### Vite configuration
+
+The `vite.config.js` is minimal and uses default settings:
+
+```javascript vite.config.js
+import { defineConfig } from "vite";
+import react from "@vitejs/plugin-react";
+import tailwindcss from "@tailwindcss/vite";
+
+export default defineConfig({
+  plugins: [react(), tailwindcss()],
+});
+```
+
+## Environment variables
+
+<ParamField path="VITE_BACKEND_URL" type="string" required>
+  The complete URL of your deployed server including protocol (e.g., `https://api.quickchat.app`)
+  
+  This variable is used in `context/AuthContext.jsx` to configure Axios and Socket.IO:
+  
+  ```javascript
+  const backendUrl = import.meta.env.VITE_BACKEND_URL;
+  axios.defaults.baseURL = backendUrl;
+  ```
+</ParamField>
+
+## Alternative platforms
+
+### Netlify
+
+<Steps>
+  <Step title="Create netlify.toml">
+    ```toml netlify.toml
+    [build]
+      command = "npm run build"
+      publish = "dist"
+    
+    [[redirects]]
+      from = "/*"
+      to = "/index.html"
+      status = 200
+    ```
+  </Step>
+  
+  <Step title="Deploy">
+    ```bash
+    npm install -g netlify-cli
+    netlify deploy --prod
+    ```
+  </Step>
+</Steps>
+
+### Cloudflare Pages
+
+<Steps>
+  <Step title="Configure build settings">
+    - Build command: `npm run build`
+    - Build output directory: `dist`
+    - Environment variable: `VITE_BACKEND_URL`
+  </Step>
+  
+  <Step title="Deploy via GitHub">
+    Connect your repository and Cloudflare Pages will auto-deploy on push.
+  </Step>
+</Steps>
+
+## Testing the deployment
+
+After deployment, verify these features:
+
+<Steps>
+  <Step title="Check client-side routing">
+    Navigate to different routes (`/`, `/login`, `/profile`) and ensure they load correctly.
+  </Step>
+  
+  <Step title="Test API connectivity">
+    Open browser developer tools and verify:
+    - Network requests to your backend URL succeed
+    - No CORS errors in console
+    - WebSocket connection establishes successfully
+  </Step>
+  
+  <Step title="Test authentication">
+    - Register a new account
+    - Log in with credentials
+    - Verify JWT token is stored in localStorage
+  </Step>
+  
+  <Step title="Test real-time features">
+    - Send messages between users
+    - Verify online/offline status updates
+    - Check message delivery in real-time
+  </Step>
+</Steps>
+
+## Troubleshooting
+
+<AccordionGroup>
+  <Accordion title="CORS errors in browser console">
+    Ensure your server's CORS configuration includes your client domain:
+    
+    ```javascript server.js
+    app.use(cors({
+      origin: "https://your-client.vercel.app"
+    }));
+    ```
+  </Accordion>
+  
+  <Accordion title="Environment variables not loading">
+    - Verify variables are prefixed with `VITE_`
+    - Rebuild the application after adding variables
+    - Check Vercel dashboard for correct variable names
+  </Accordion>
+  
+  <Accordion title="404 on page refresh">
+    Ensure your `vercel.json` rewrites configuration is present and correct. This redirects all routes to `index.html` for client-side routing.
+  </Accordion>
+  
+  <Accordion title="WebSocket connection fails">
+    - Verify `VITE_BACKEND_URL` is set correctly
+    - Check that server Socket.IO CORS allows your client origin
+    - Ensure server is deployed and accessible
+  </Accordion>
+</AccordionGroup>
+
+<Tip>
+Use `npm run preview` locally to test the production build before deploying.
+</Tip>
+
+## Next steps
+
+<CardGroup cols={2}>
+  <Card title="Server deployment" icon="server" href="/deployment/server">
+    Deploy the Express backend
+  </Card>
+  
+  <Card title="Environment variables" icon="key" href="/deployment/environment">
+    Complete environment variables reference
+  </Card>
+</CardGroup>

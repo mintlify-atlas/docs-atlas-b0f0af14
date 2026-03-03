@@ -1,0 +1,437 @@
+---
+title: Environment variables
+description: Complete reference for all environment variables required by QuickChat client and server
+---
+
+QuickChat requires several environment variables to be configured for both the client and server components. This page provides a complete reference for all required and optional variables.
+
+## Client environment variables
+
+The React client uses Vite, which requires environment variables to be prefixed with `VITE_` to be exposed to the client code.
+
+### Required variables
+
+<ParamField path="VITE_BACKEND_URL" type="string" required>
+  The complete URL of your deployed server including protocol.
+  
+  **Example:** `https://quickchat-server.vercel.app`
+  
+  **Usage:** This variable is used in `context/AuthContext.jsx` to configure:
+  - Axios base URL for API requests
+  - Socket.IO connection endpoint
+  
+  ```javascript context/AuthContext.jsx
+  const backendUrl = import.meta.env.VITE_BACKEND_URL;
+  axios.defaults.baseURL = backendUrl;
+  
+  const newSocket = io(backendUrl, {
+    query: { userId: userData._id }
+  });
+  ```
+  
+  <Warning>
+  Do not include a trailing slash. The API routes (e.g., `/api/auth/login`) will be appended to this URL.
+  </Warning>
+</ParamField>
+
+### Configuration example
+
+<CodeGroup>
+```bash .env (Local)
+VITE_BACKEND_URL=http://localhost:5000
+```
+
+```bash Vercel Environment Variables
+VITE_BACKEND_URL=https://your-server.vercel.app
+```
+
+```bash Netlify Environment Variables
+VITE_BACKEND_URL=https://your-server.onrender.com
+```
+</CodeGroup>
+
+## Server environment variables
+
+The Express server uses `dotenv` to load environment variables from a `.env` file in development.
+
+### Required variables
+
+<ParamField path="MONDODB_URI" type="string" required>
+  MongoDB connection string for database access.
+  
+  **Format:** `mongodb+srv://username:password@cluster.mongodb.net`
+  
+  **Usage:** Used in `lib/db.js` to connect to MongoDB. The database name `chat-app` is automatically appended:
+  
+  ```javascript lib/db.js
+  await mongoose.connect(`${process.env.MONDODB_URI}/chat-app`);
+  ```
+  
+  <Note>
+  Note the typo: the variable is named `MONDODB_URI` (not `MONGODB_URI`) in the source code.
+  </Note>
+  
+  **Where to get it:**
+  1. Create a cluster in [MongoDB Atlas](https://www.mongodb.com/cloud/atlas)
+  2. Click "Connect" → "Connect your application"
+  3. Copy the connection string
+  4. Replace `<password>` with your database user password
+  5. Remove the database name from the end (it's added automatically)
+</ParamField>
+
+<ParamField path="JWT_SECRET" type="string" required>
+  Secret key used to sign and verify JWT authentication tokens.
+  
+  **Usage:** Used in `lib/utils.js` for token generation and `middleware/auth.js` for verification:
+  
+  ```javascript lib/utils.js
+  const token = jwt.sign({ userId }, process.env.JWT_SECRET);
+  ```
+  
+  ```javascript middleware/auth.js
+  const decoded = jwt.verify(token, process.env.JWT_SECRET);
+  ```
+  
+  **Best practices:**
+  - Use a long, random string (at least 32 characters)
+  - Never reuse secrets across environments
+  - Never commit secrets to version control
+  
+  **Generate a secure secret:**
+  ```bash
+  openssl rand -base64 32
+  ```
+  
+  Or use Node.js:
+  ```javascript
+  node -e "console.log(require('crypto').randomBytes(32).toString('base64'))"
+  ```
+</ParamField>
+
+<ParamField path="CLOUDINARY_CLOUD_NAME" type="string" required>
+  Your Cloudinary account cloud name.
+  
+  **Usage:** Used in `lib/cloudinary.js` to configure the Cloudinary SDK:
+  
+  ```javascript lib/cloudinary.js
+  cloudinary.config({
+    cloud_name: process.env.CLOUDINARY_CLOUD_NAME,
+    // ...
+  });
+  ```
+  
+  **Where to get it:**
+  1. Sign up at [Cloudinary](https://cloudinary.com/)
+  2. Go to your dashboard
+  3. Copy the "Cloud name" value
+</ParamField>
+
+<ParamField path="CLOUDINARY_API_KEY" type="string" required>
+  Your Cloudinary API key for authentication.
+  
+  **Usage:** Used in `lib/cloudinary.js` for API authentication.
+  
+  **Where to get it:**
+  From your Cloudinary dashboard, copy the "API Key" value.
+</ParamField>
+
+<ParamField path="CLOUDINARY_API_SECRET" type="string" required>
+  Your Cloudinary API secret for secure authentication.
+  
+  **Usage:** Used in `lib/cloudinary.js` for secure API authentication:
+  
+  ```javascript lib/cloudinary.js
+  cloudinary.config({
+    cloud_name: process.env.CLOUDINARY_CLOUD_NAME,
+    api_key: process.env.CLOUDINARY_API_KEY,
+    api_secret: process.env.CLOUDINARY_API_SECRET,
+  });
+  ```
+  
+  **Where to get it:**
+  From your Cloudinary dashboard, copy the "API Secret" value.
+  
+  <Warning>
+  Keep this secret secure. Never expose it in client-side code or commit it to version control.
+  </Warning>
+</ParamField>
+
+### Optional variables
+
+<ParamField path="NODE_ENV" type="string" default="development">
+  Environment mode indicator.
+  
+  **Values:** `production` | `development`
+  
+  **Usage:** Controls server listening behavior in `server.js`:
+  
+  ```javascript server.js
+  if (process.env.NODE_ENV !== "production") {
+    const PORT = process.env.PORT || 5000;
+    server.listen(PORT, () => console.log("Server is running on " + PORT));
+  }
+  ```
+  
+  When `NODE_ENV=production`, the server exports the HTTP server without listening, which is required for serverless platforms like Vercel.
+</ParamField>
+
+<ParamField path="PORT" type="number" default={5000}>
+  Port number for local development server.
+  
+  **Usage:** Only used in development mode (when `NODE_ENV !== "production"`):
+  
+  ```javascript server.js
+  const PORT = process.env.PORT || 5000;
+  server.listen(PORT, () => console.log("Server is running on " + PORT));
+  ```
+  
+  <Note>
+  This variable is ignored in serverless deployments like Vercel, where the platform manages the port.
+  </Note>
+</ParamField>
+
+### Configuration example
+
+<CodeGroup>
+```bash .env (Local Development)
+MONDODB_URI=mongodb+srv://user:password@cluster.mongodb.net
+JWT_SECRET=your-super-secret-jwt-key-at-least-32-chars-long
+CLOUDINARY_CLOUD_NAME=your-cloud-name
+CLOUDINARY_API_KEY=123456789012345
+CLOUDINARY_API_SECRET=abcdefghijklmnopqrstuvwxyz
+NODE_ENV=development
+PORT=5000
+```
+
+```bash .env (Production)
+MONDODB_URI=mongodb+srv://prod-user:secure-password@production-cluster.mongodb.net
+JWT_SECRET=super-secure-random-string-for-production-environment
+CLOUDINARY_CLOUD_NAME=production-cloud
+CLOUDINARY_API_KEY=987654321098765
+CLOUDINARY_API_SECRET=zyxwvutsrqponmlkjihgfedcba
+NODE_ENV=production
+```
+</CodeGroup>
+
+## Platform-specific configuration
+
+### Vercel
+
+Add environment variables via the dashboard:
+
+<Steps>
+  <Step title="Navigate to project settings">
+    Go to your project in the Vercel dashboard and click "Settings".
+  </Step>
+  
+  <Step title="Add environment variables">
+    1. Click "Environment Variables" in the sidebar
+    2. Add each variable with its value
+    3. Select environments: Production, Preview, Development
+    4. Click "Save"
+  </Step>
+  
+  <Step title="Redeploy">
+    Trigger a new deployment for changes to take effect:
+    ```bash
+    vercel --prod
+    ```
+  </Step>
+</Steps>
+
+<Tip>
+Vercel automatically loads environment variables at build time and runtime. You don't need a `.env` file in your repository.
+</Tip>
+
+### Railway
+
+<Steps>
+  <Step title="Open project settings">
+    Select your project and click the "Variables" tab.
+  </Step>
+  
+  <Step title="Add variables">
+    Click "New Variable" and add each environment variable. Railway automatically redeploys when variables change.
+  </Step>
+</Steps>
+
+### Render
+
+<Steps>
+  <Step title="Navigate to environment">
+    In your web service dashboard, scroll to "Environment Variables".
+  </Step>
+  
+  <Step title="Add variables">
+    Click "Add Environment Variable" and enter each key-value pair. Save and trigger a manual deploy.
+  </Step>
+</Steps>
+
+### Netlify
+
+<Steps>
+  <Step title="Go to site settings">
+    Select your site and navigate to "Site settings" → "Environment variables".
+  </Step>
+  
+  <Step title="Add variables">
+    For client variables, add them with the `VITE_` prefix. Netlify will inject them at build time.
+  </Step>
+</Steps>
+
+## Security best practices
+
+<Warning>
+Follow these security guidelines to protect your application:
+</Warning>
+
+<AccordionGroup>
+  <Accordion title="Never commit secrets to version control">
+    - Add `.env` to your `.gitignore` file
+    - Use `.env.example` with dummy values to document required variables
+    - Never commit API keys, secrets, or passwords
+    
+    ```bash .gitignore
+    .env
+    .env.local
+    .env.production
+    ```
+    
+    ```bash .env.example
+    MONDODB_URI=mongodb+srv://username:password@cluster.mongodb.net
+    JWT_SECRET=your-jwt-secret-here
+    CLOUDINARY_CLOUD_NAME=your-cloud-name
+    CLOUDINARY_API_KEY=your-api-key
+    CLOUDINARY_API_SECRET=your-api-secret
+    NODE_ENV=production
+    ```
+  </Accordion>
+  
+  <Accordion title="Use different secrets per environment">
+    - Development, staging, and production should use different secrets
+    - Use separate MongoDB databases for each environment
+    - Use different Cloudinary accounts or folders
+  </Accordion>
+  
+  <Accordion title="Rotate secrets regularly">
+    - Change JWT secrets periodically (will invalidate existing tokens)
+    - Rotate database passwords quarterly
+    - Update API keys when team members leave
+  </Accordion>
+  
+  <Accordion title="Limit environment variable access">
+    - Only expose `VITE_*` variables to the client
+    - Keep server secrets server-side only
+    - Use platform secret management features
+    - Limit team access to production variables
+  </Accordion>
+  
+  <Accordion title="Validate environment variables on startup">
+    Consider adding validation to ensure all required variables are set:
+    
+    ```javascript
+    const requiredEnvVars = [
+      'MONDODB_URI',
+      'JWT_SECRET',
+      'CLOUDINARY_CLOUD_NAME',
+      'CLOUDINARY_API_KEY',
+      'CLOUDINARY_API_SECRET'
+    ];
+    
+    requiredEnvVars.forEach(varName => {
+      if (!process.env[varName]) {
+        throw new Error(`Missing required environment variable: ${varName}`);
+      }
+    });
+    ```
+  </Accordion>
+</AccordionGroup>
+
+## Troubleshooting
+
+<AccordionGroup>
+  <Accordion title="Client can't connect to server">
+    **Symptoms:** Network errors, CORS errors, connection refused
+    
+    **Solutions:**
+    - Verify `VITE_BACKEND_URL` is set correctly
+    - Check that the URL includes the protocol (`https://`)
+    - Ensure there's no trailing slash
+    - Rebuild the client after changing variables
+    - Check browser console for the actual request URL
+  </Accordion>
+  
+  <Accordion title="MongoDB connection fails">
+    **Symptoms:** "Database connection failed", "Invalid connection string"
+    
+    **Solutions:**
+    - Verify `MONDODB_URI` variable name (note: `MONDODB` not `MONGODB`)
+    - Check MongoDB Atlas network access allows your server IP
+    - Ensure connection string format is correct
+    - Verify database user credentials
+    - Check that the password doesn't contain special characters that need URL encoding
+  </Accordion>
+  
+  <Accordion title="JWT authentication errors">
+    **Symptoms:** "Invalid token", "jwt malformed", authentication fails
+    
+    **Solutions:**
+    - Ensure `JWT_SECRET` is set and consistent
+    - Verify the secret hasn't changed (would invalidate existing tokens)
+    - Check that the secret is at least 32 characters
+    - Ensure tokens are sent in the `token` header (not `Authorization`)
+  </Accordion>
+  
+  <Accordion title="Cloudinary uploads fail">
+    **Symptoms:** Image upload errors, "Invalid API key"
+    
+    **Solutions:**
+    - Verify all three Cloudinary variables are set
+    - Check credentials in Cloudinary dashboard
+    - Ensure `CLOUDINARY_API_SECRET` is kept secret (server-side only)
+    - Verify image size is under 4MB limit
+  </Accordion>
+  
+  <Accordion title="Environment variables not loading">
+    **Symptoms:** `undefined` values, features not working
+    
+    **Solutions:**
+    - **Client:** Ensure variables are prefixed with `VITE_`
+    - **Client:** Rebuild after adding variables (not just restart dev server)
+    - **Server:** Check that `dotenv/config` is imported at the top of `server.js`
+    - **Platform:** Verify variables are set in platform dashboard
+    - **Platform:** Trigger a new deployment after adding variables
+  </Accordion>
+</AccordionGroup>
+
+## Quick reference
+
+### Client variables summary
+
+| Variable | Required | Default | Description |
+|----------|----------|---------|-------------|
+| `VITE_BACKEND_URL` | Yes | - | Server API URL |
+
+### Server variables summary
+
+| Variable | Required | Default | Description |
+|----------|----------|---------|-------------|
+| `MONDODB_URI` | Yes | - | MongoDB connection string |
+| `JWT_SECRET` | Yes | - | JWT signing secret |
+| `CLOUDINARY_CLOUD_NAME` | Yes | - | Cloudinary cloud name |
+| `CLOUDINARY_API_KEY` | Yes | - | Cloudinary API key |
+| `CLOUDINARY_API_SECRET` | Yes | - | Cloudinary API secret |
+| `NODE_ENV` | No | `development` | Environment mode |
+| `PORT` | No | `5000` | Development server port |
+
+## Next steps
+
+<CardGroup cols={2}>
+  <Card title="Deploy the client" icon="react" href="/deployment/client">
+    Deploy the React frontend to production
+  </Card>
+  
+  <Card title="Deploy the server" icon="server" href="/deployment/server">
+    Deploy the Express backend to production
+  </Card>
+</CardGroup>

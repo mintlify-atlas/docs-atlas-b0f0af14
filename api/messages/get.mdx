@@ -1,0 +1,124 @@
+---
+title: Get messages
+description: Retrieve all messages exchanged with a specific user
+---
+
+## GET /api/messages/:id
+
+Retrieves all messages between the authenticated user and the specified user. This endpoint returns the complete conversation history and automatically marks all unread messages from the specified user as seen.
+
+### Authentication
+
+This endpoint requires authentication using the `protectRoute` middleware. Include a valid JWT token in the request.
+
+### Path parameters
+
+<ParamField path="id" type="string" required>
+  The ID of the user whose conversation you want to retrieve
+</ParamField>
+
+### Response
+
+<ResponseField name="success" type="boolean">
+  Indicates whether the messages were retrieved successfully
+</ResponseField>
+
+<ResponseField name="messages" type="array">
+  Array of message objects representing the conversation
+  
+  <Expandable title="Message object">
+    <ResponseField name="_id" type="string">
+      Unique identifier for the message
+    </ResponseField>
+    
+    <ResponseField name="senderId" type="string">
+      ID of the user who sent the message
+    </ResponseField>
+    
+    <ResponseField name="receiverId" type="string">
+      ID of the user receiving the message
+    </ResponseField>
+    
+    <ResponseField name="text" type="string">
+      Text content of the message
+    </ResponseField>
+    
+    <ResponseField name="image" type="string">
+      Cloudinary URL of the image (if the message contains an image)
+    </ResponseField>
+    
+    <ResponseField name="seen" type="boolean">
+      Whether the message has been seen by the receiver
+    </ResponseField>
+    
+    <ResponseField name="createdAt" type="string">
+      ISO 8601 timestamp when the message was created
+    </ResponseField>
+    
+    <ResponseField name="updatedAt" type="string">
+      ISO 8601 timestamp when the message was last updated
+    </ResponseField>
+  </Expandable>
+</ResponseField>
+
+<ResponseField name="message" type="string">
+  Error message (only present when success is false)
+</ResponseField>
+
+<Info>
+This endpoint automatically marks all messages from the specified user to the authenticated user as seen. The `seen` field will be updated to `true` for these messages.
+</Info>
+
+### Example request
+
+```bash
+curl -X GET https://api.quickchat.com/api/messages/507f1f77bcf86cd799439011 \
+  -H "Authorization: Bearer YOUR_JWT_TOKEN"
+```
+
+### Example response
+
+```json
+{
+  "success": true,
+  "messages": [
+    {
+      "_id": "65f8a3b2c1d4e5f6a7b8c9d0",
+      "senderId": "507f191e810c19729de860ea",
+      "receiverId": "507f1f77bcf86cd799439011",
+      "text": "Hello! How are you?",
+      "seen": true,
+      "createdAt": "2024-03-19T10:30:00.000Z",
+      "updatedAt": "2024-03-19T10:35:00.000Z"
+    },
+    {
+      "_id": "65f8a4c3d2e5f6g7h8i9j0k1",
+      "senderId": "507f1f77bcf86cd799439011",
+      "receiverId": "507f191e810c19729de860ea",
+      "text": "I'm doing great, thanks! How about you?",
+      "seen": true,
+      "createdAt": "2024-03-19T10:32:00.000Z",
+      "updatedAt": "2024-03-19T10:35:00.000Z"
+    },
+    {
+      "_id": "65f8a5d4e3f6g7h8i9j0k1l2",
+      "senderId": "507f191e810c19729de860ea",
+      "receiverId": "507f1f77bcf86cd799439011",
+      "text": "Check out this image!",
+      "image": "https://res.cloudinary.com/demo/image/upload/v1234567890/sample.jpg",
+      "seen": true,
+      "createdAt": "2024-03-19T10:33:00.000Z",
+      "updatedAt": "2024-03-19T10:35:00.000Z"
+    }
+  ]
+}
+```
+
+### Error response
+
+```json
+{
+  "success": false,
+  "message": "Error message describing what went wrong"
+}
+```

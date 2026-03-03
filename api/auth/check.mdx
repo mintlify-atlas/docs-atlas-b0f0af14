@@ -1,0 +1,95 @@
+---
+title: Check authentication
+description: Verify if the current user is authenticated
+---
+
+## Endpoint
+
+```
+GET /api/auth/check
+```
+
+**Authentication:** Required
+
+This endpoint requires a valid JWT token to be included in the request headers.
+
+## Request headers
+
+<ParamField name="Authorization" type="string" required>
+  Bearer token for authentication
+  
+  Format: `Bearer <token>`
+</ParamField>
+
+## Response
+
+<ResponseField name="success" type="boolean">
+  Indicates if the request was successful
+</ResponseField>
+
+<ResponseField name="user" type="object">
+  The authenticated user object
+  
+  <ResponseField name="_id" type="string">
+    Unique user identifier
+  </ResponseField>
+  
+  <ResponseField name="fullName" type="string">
+    Full name of the user
+  </ResponseField>
+  
+  <ResponseField name="email" type="string">
+    Email address of the user
+  </ResponseField>
+  
+  <ResponseField name="bio" type="string">
+    User biography
+  </ResponseField>
+  
+  <ResponseField name="profilePic" type="string">
+    URL to profile picture
+  </ResponseField>
+  
+  <ResponseField name="createdAt" type="string">
+    Account creation timestamp
+  </ResponseField>
+  
+  <ResponseField name="updatedAt" type="string">
+    Last update timestamp
+  </ResponseField>
+</ResponseField>
+
+## Example request
+
+```bash
+curl -X GET https://api.quickchat.com/api/auth/check \
+  -H "Authorization: Bearer eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9..."
+```
+
+## Example response
+
+```json
+{
+  "success": true,
+  "user": {
+    "_id": "507f1f77bcf86cd799439011",
+    "fullName": "John Doe",
+    "email": "john@example.com",
+    "bio": "Software developer and chat enthusiast",
+    "profilePic": "https://res.cloudinary.com/demo/image/upload/profile.jpg",
+    "createdAt": "2026-03-03T10:30:00.000Z",
+    "updatedAt": "2026-03-03T10:30:00.000Z"
+  }
+}
+```
+
+## Error responses
+
+### Missing or invalid token
+
+```json
+{
+  "success": false,
+  "message": "Unauthorized"
+}
+```

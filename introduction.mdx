@@ -1,0 +1,125 @@
+---
+title: Welcome to QuickChat
+description: A real-time web chat application that enables instant messaging with Socket.IO
+---
+
+<img
+  className="block dark:hidden"
+  src="/images/hero-light.svg"
+  alt="QuickChat Hero Light"
+/>
+<img
+  className="hidden dark:block"
+  src="/images/hero-dark.svg"
+  alt="QuickChat Hero Dark"
+/>
+
+## What is QuickChat?
+
+QuickChat is a modern, real-time web chat application built with React and Node.js. It allows users to send and receive messages instantly using WebSocket connections powered by Socket.IO.
+
+<CardGroup cols={2}>
+  <Card
+    title="Real-time messaging"
+    icon="messages"
+    href="/features/real-time"
+  >
+    Send and receive messages instantly with Socket.IO WebSocket connections
+  </Card>
+  <Card
+    title="User authentication"
+    icon="lock"
+    href="/features/authentication"
+  >
+    Secure JWT-based authentication with bcrypt password hashing
+  </Card>
+  <Card
+    title="Online status"
+    icon="circle-dot"
+    href="/features/real-time"
+  >
+    See which users are currently online and available to chat
+  </Card>
+  <Card
+    title="Media sharing"
+    icon="image"
+    href="/features/media"
+  >
+    Share images in your conversations with Cloudinary integration
+  </Card>
+</CardGroup>
+
+## Key features
+
+<AccordionGroup>
+  <Accordion title="Real-time communication">
+    QuickChat uses Socket.IO to establish WebSocket connections between clients and the server, enabling instant message delivery without polling. Users see messages appear immediately as they're sent.
+  </Accordion>
+
+  <Accordion title="User profiles">
+    Each user has a customizable profile with a full name, bio, and profile picture. Update your profile anytime from the profile page.
+  </Accordion>
+
+  <Accordion title="Message status tracking">
+    QuickChat tracks message delivery and read status, so you know when your messages have been seen by recipients.
+  </Accordion>
+
+  <Accordion title="Responsive design">
+    Built with Tailwind CSS and React, QuickChat provides a beautiful, responsive interface that works seamlessly across desktop and mobile devices.
+  </Accordion>
+</AccordionGroup>
+
+## Tech stack
+
+QuickChat is built with modern web technologies:
+
+<CardGroup cols={2}>
+  <Card title="Frontend" icon="react">
+    - React 19.1.0
+    - Vite
+    - Tailwind CSS 4.1.7
+    - Socket.IO Client 4.8.1
+    - React Router DOM 7.6.0
+    - Axios for API requests
+  </Card>
+  <Card title="Backend" icon="server">
+    - Node.js with Express 5.1.0
+    - Socket.IO 4.8.1
+    - MongoDB with Mongoose 8.15.0
+    - JWT authentication
+    - Cloudinary for image storage
+  </Card>
+</CardGroup>
+
+## Get started
+
+<CardGroup cols={2}>
+  <Card
+    title="Quickstart"
+    icon="rocket"
+    href="/quickstart"
+  >
+    Get up and running in under 5 minutes
+  </Card>
+  <Card
+    title="Installation"
+    icon="download"
+    href="/installation"
+  >
+    Detailed setup instructions for development
+  </Card>
+  <Card
+    title="API reference"
+    icon="code"
+    href="/api/auth/signup"
+  >
+    Explore the REST API endpoints
+  </Card>
+  <Card
+    title="Configuration"
+    icon="gear"
+    href="/deployment/environment"
+  >
+    Configure environment variables and settings
+  </Card>
+</CardGroup>

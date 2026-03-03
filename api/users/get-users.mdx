@@ -1,0 +1,92 @@
+---
+title: Get users
+description: Retrieve all users except the authenticated user, including unseen message counts
+---
+
+## GET /api/messages/users
+
+Returns a list of all users except the currently authenticated user, along with counts of unseen messages from each user.
+
+### Authentication
+
+This endpoint requires authentication via JWT token in the Authorization header.
+
+### Response
+
+<ResponseField name="success" type="boolean" required>
+  Indicates whether the request was successful
+</ResponseField>
+
+<ResponseField name="users" type="array" required>
+  Array of user objects (excludes password field)
+  
+  <ResponseField name="_id" type="string">
+    User's unique identifier
+  </ResponseField>
+  
+  <ResponseField name="fullName" type="string">
+    User's full name
+  </ResponseField>
+  
+  <ResponseField name="email" type="string">
+    User's email address
+  </ResponseField>
+  
+  <ResponseField name="bio" type="string">
+    User's biography
+  </ResponseField>
+  
+  <ResponseField name="profilePic" type="string">
+    URL to user's profile picture
+  </ResponseField>
+</ResponseField>
+
+<ResponseField name="unseenMessages" type="object" required>
+  Object mapping user IDs to counts of unseen messages from that user
+  
+  Example: `{ "userId1": 3, "userId2": 5 }`
+</ResponseField>
+
+### Example request
+
+```bash
+curl -X GET https://api.quickchat.com/api/messages/users \
+  -H "Authorization: Bearer YOUR_JWT_TOKEN"
+```
+
+### Example response
+
+```json
+{
+  "success": true,
+  "users": [
+    {
+      "_id": "60d5ec49f1b2c72b8c8e4f1a",
+      "fullName": "John Doe",
+      "email": "john@example.com",
+      "bio": "Software developer",
+      "profilePic": "https://cloudinary.com/image.jpg"
+    },
+    {
+      "_id": "60d5ec49f1b2c72b8c8e4f1b",
+      "fullName": "Jane Smith",
+      "email": "jane@example.com",
+      "bio": "Product manager",
+      "profilePic": "https://cloudinary.com/image2.jpg"
+    }
+  ],
+  "unseenMessages": {
+    "60d5ec49f1b2c72b8c8e4f1a": 3,
+    "60d5ec49f1b2c72b8c8e4f1b": 1
+  }
+}
+```
+
+### Error response
+
+```json
+{
+  "success": false,
+  "message": "Error message description"
+}
+```

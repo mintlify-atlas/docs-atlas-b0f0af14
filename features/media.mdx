@@ -1,0 +1,238 @@
+---
+title: Image upload and sharing
+description: Share photos and images securely in your conversations
+---
+
+QuickChat allows you to share images directly in your conversations, making your chats more expressive and visual.
+
+## Image sharing overview
+
+QuickChat supports image sharing in two contexts:
+
+<CardGroup cols={2}>
+  <Card title="Chat messages" icon="comment">
+    Send images directly in your conversations
+  </Card>
+  
+  <Card title="Profile pictures" icon="user-circle">
+    Upload a personal photo for your profile
+  </Card>
+</CardGroup>
+
+## Sharing images in chats
+
+Send images to any user in your conversations:
+
+<Steps>
+  <Step title="Open a conversation">
+    Select a user from the sidebar to open their chat.
+  </Step>
+  
+  <Step title="Click the gallery icon">
+    Find the gallery icon next to the message input field at the bottom.
+  </Step>
+  
+  <Step title="Select your image">
+    Choose a PNG or JPEG image from your device.
+  </Step>
+  
+  <Step title="Image sent automatically">
+    The image uploads and sends immediately - no additional confirmation needed!
+  </Step>
+</Steps>
+
+### Supported image formats
+
+QuickChat accepts the following image types:
+
+- **PNG**: .png files
+- **JPEG**: .jpg and .jpeg files
+
+<Note>
+If you select a file that's not an image, you'll receive an error notification asking you to choose a valid image format.
+</Note>
+
+## How image upload works
+
+When you share an image, QuickChat:
+
+1. **Converts to base64**: The image is encoded in your browser
+2. **Uploads to cloud**: Sent securely to Cloudinary for storage
+3. **Generates URL**: A permanent, secure URL is created
+4. **Saves to database**: The URL is stored with your message
+5. **Delivers instantly**: Sent in real-time to the recipient
+
+### Cloud storage with Cloudinary
+
+All images are stored using Cloudinary, providing:
+
+<CardGroup cols={2}>
+  <Card title="Secure storage" icon="shield">
+    Images are stored safely in the cloud
+  </Card>
+  
+  <Card title="Fast delivery" icon="bolt">
+    Optimized CDN for quick image loading
+  </Card>
+  
+  <Card title="Permanent URLs" icon="link">
+    Images remain accessible indefinitely
+  </Card>
+  
+  <Card title="Reliable hosting" icon="server">
+    Enterprise-grade infrastructure
+  </Card>
+</CardGroup>
+
+## Image display in chats
+
+When images are shared in conversations:
+
+### Image messages
+
+- **Full display**: Images appear in the chat at up to 230px width
+- **Border styling**: A subtle border distinguishes images from text
+- **Rounded corners**: Images have rounded corners for a modern look
+- **Preserved aspect ratio**: Images maintain their original proportions
+
+### Layout behavior
+
+- **Your images**: Appear on the right side of the chat
+- **Their images**: Appear on the left side
+- **With avatar**: Small profile picture shows next to each image
+- **With timestamp**: Time sent is displayed below the image
+
+<Tip>
+Images automatically scroll into view when sent or received, so you never miss new media!
+</Tip>
+
+## Uploading profile pictures
+
+Customize your profile with a personal photo:
+
+### Profile picture upload process
+
+<Steps>
+  <Step title="Navigate to profile page">
+    Access your profile settings from the main menu.
+  </Step>
+  
+  <Step title="Click upload area">
+    Click on the avatar icon or your current profile picture.
+  </Step>
+  
+  <Step title="Choose image">
+    Select a PNG or JPEG image from your device.
+  </Step>
+  
+  <Step title="Preview and save">
+    See a preview of your selection, then click Save to apply.
+  </Step>
+</Steps>
+
+### Profile picture requirements
+
+- **Formats**: PNG or JPEG only
+- **Display**: Shown as a circular avatar
+- **Locations**: Appears in sidebar, chat headers, and messages
+
+## File size and limits
+
+QuickChat has sensible limits for image uploads:
+
+### Upload limits
+
+- **Maximum request size**: 4MB total
+- **Recommended**: Keep images under 2MB for optimal performance
+- **No file count limit**: Share as many images as you want
+
+<Note>
+The 4MB limit applies to the entire request, which includes the base64-encoded image. Very large images may be rejected.
+</Note>
+
+## Image security
+
+Your images are handled securely:
+
+### Security features
+
+<CardGroup cols={2}>
+  <Card title="HTTPS only" icon="lock">
+    All images transmitted over secure connections
+  </Card>
+  
+  <Card title="Private delivery" icon="eye-slash">
+    Images only visible to conversation participants
+  </Card>
+  
+  <Card title="Secure URLs" icon="shield-check">
+    Cloudinary URLs use secure protocols
+  </Card>
+  
+  <Card title="Validated uploads" icon="check-circle">
+    Only image formats are accepted
+  </Card>
+</CardGroup>
+
+## Real-time image delivery
+
+Images benefit from QuickChat's real-time infrastructure:
+
+1. **Instant upload**: Image is uploaded to Cloudinary immediately
+2. **Real-time send**: Message with image URL is delivered via WebSocket
+3. **Live display**: Recipient sees the image instantly if online
+4. **No refresh**: Images appear without page reloads
+
+<Tip>
+When you send an image, the recipient sees it in real-time - just like text messages!
+</Tip>
+
+## Best practices for sharing images
+
+<CardGroup cols={2}>
+  <Card title="Appropriate content" icon="heart">
+    Share images that are respectful and appropriate
+  </Card>
+  
+  <Card title="Image quality" icon="star">
+    Use clear, well-lit photos for best results
+  </Card>
+  
+  <Card title="File size" icon="gauge">
+    Compress large images before uploading
+  </Card>
+  
+  <Card title="Relevant sharing" icon="bullseye">
+    Share images that add value to your conversation
+  </Card>
+</CardGroup>
+
+## Troubleshooting image uploads
+
+### Common issues and solutions
+
+**"Please select an image" error**
+- Ensure you're selecting a PNG or JPEG file
+- Check that the file extension is .png, .jpg, or .jpeg
+
+**Image not uploading**
+- Check your internet connection
+- Verify the file size is under 4MB
+- Try a different image format
+
+**Image appears pixelated**
+- Use higher resolution source images
+- Avoid uploading already-compressed images
+
+<Note>
+If you continue experiencing issues with image uploads, check your network connection and ensure you're using a supported browser.
+</Note>
+
+## Image persistence
+
+All uploaded images are permanently stored:
+
+- **Chat history**: Images remain in conversation history indefinitely
+- **Profile pictures**: Stay until you update them
+- **No expiration**: Images don't expire or get deleted automatically
+- **Cloud backup**: Stored reliably in Cloudinary's infrastructure

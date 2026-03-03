@@ -1,0 +1,418 @@
+---
+title: Server deployment
+description: Deploy the QuickChat Express server with Socket.IO and MongoDB to production
+---
+
+The QuickChat server is an Express.js application with Socket.IO for real-time messaging, MongoDB for data persistence, and Cloudinary for image storage. This guide covers deploying it to production.
+
+## Prerequisites
+
+Before deploying the server, ensure you have:
+
+- MongoDB Atlas account or MongoDB instance
+- Cloudinary account for image uploads
+- Vercel account (or alternative Node.js hosting platform)
+- All required environment variables ready
+
+## Technology stack
+
+The server application uses:
+
+- **Express 5** - Web application framework
+- **Socket.IO 4** - Real-time bidirectional communication
+- **MongoDB/Mongoose 8** - Database and ODM
+- **Cloudinary** - Image upload and storage
+- **JWT** - Authentication tokens
+- **bcryptjs** - Password hashing
+
+## Database setup
+
+<Steps>
+  <Step title="Create MongoDB Atlas cluster">
+    1. Go to [MongoDB Atlas](https://www.mongodb.com/cloud/atlas)
+    2. Create a new cluster (free tier available)
+    3. Configure network access to allow connections from anywhere (`0.0.0.0/0`) for serverless deployment
+  </Step>
+  
+  <Step title="Create database user">
+    1. Navigate to "Database Access"
+    2. Add a new database user with read/write permissions
+    3. Save the username and password for your connection string
+  </Step>
+  
+  <Step title="Get connection string">
+    1. Click "Connect" on your cluster
+    2. Choose "Connect your application"
+    3. Copy the connection string (format: `mongodb+srv://username:password@cluster.mongodb.net`)
+    
+    <Note>
+    The database name `chat-app` is automatically appended by the application in `lib/db.js:10`
+    </Note>
+  </Step>
+</Steps>
+
+## Cloudinary setup
+
+<Steps>
+  <Step title="Create Cloudinary account">
+    Sign up at [Cloudinary](https://cloudinary.com/) for a free account.
+  </Step>
+  
+  <Step title="Get API credentials">
+    From your Cloudinary dashboard, copy:
+    - Cloud Name
+    - API Key
+    - API Secret
+  </Step>
+</Steps>
+
+## Deploying to Vercel
+
+<Steps>
+  <Step title="Install Vercel CLI">
+    ```bash
+    npm install -g vercel
+    ```
+  </Step>
+  
+  <Step title="Configure environment variables locally">
+    Create a `.env` file in the server directory:
+    
+    ```bash .env
+    MONDODB_URI=mongodb+srv://username:password@cluster.mongodb.net
+    JWT_SECRET=your-super-secret-jwt-key-change-this
+    CLOUDINARY_CLOUD_NAME=your-cloud-name
+    CLOUDINARY_API_KEY=your-api-key
+    CLOUDINARY_API_SECRET=your-api-secret
+    NODE_ENV=production
+    ```
+    
+    <Warning>
+    Never commit the `.env` file to version control. Add it to `.gitignore`.
+    </Warning>
+  </Step>
+  
+  <Step title="Deploy via CLI">
+    Navigate to the server directory and deploy:
+    
+    ```bash
+    cd server
+    vercel
+    ```
+    
+    Follow the prompts to configure your project.
+  </Step>
+  
+  <Step title="Configure environment variables in Vercel">
+    Add all environment variables in the Vercel dashboard:
+    
+    1. Go to your project settings
+    2. Navigate to "Environment Variables"
+    3. Add each variable from your `.env` file
+    4. Select "Production", "Preview", and "Development" scopes
+  </Step>
+  
+  <Step title="Deploy to production">
+    ```bash
+    vercel --prod
+    ```
+    
+    Save the deployment URL - you'll need it for the client configuration.
+  </Step>
+</Steps>
+
+## Deploying via GitHub
+
+For automatic deployments:
+
+<Steps>
+  <Step title="Connect repository to Vercel">
+    1. Go to [Vercel Dashboard](https://vercel.com/dashboard)
+    2. Click "Add New Project"
+    3. Import your GitHub repository
+    4. Select the `server` directory as the root
+  </Step>
+  
+  <Step title="Configure build settings">
+    Vercel will use the `vercel.json` configuration automatically:
+    
+    <ParamField path="Framework Preset" type="string">
+      Other
+    </ParamField>
+    
+    <ParamField path="Build Command" type="string">
+      Leave empty (no build step required)
+    </ParamField>
+    
+    <ParamField path="Output Directory" type="string">
+      Leave empty
+    </ParamField>
+    
+    <ParamField path="Install Command" type="string">
+      `npm install`
+    </ParamField>
+  </Step>
+  
+  <Step title="Add environment variables">
+    Add all required environment variables in the project settings:
+    
+    ```bash
+    MONDODB_URI=mongodb+srv://...
+    JWT_SECRET=your-secret-key
+    CLOUDINARY_CLOUD_NAME=your-cloud-name
+    CLOUDINARY_API_KEY=your-api-key
+    CLOUDINARY_API_SECRET=your-api-secret
+    NODE_ENV=production
+    ```
+  </Step>
+  
+  <Step title="Deploy">
+    Click "Deploy". Vercel will automatically redeploy on every push to your main branch.
+  </Step>
+</Steps>
+
+## Vercel configuration
+
+The server includes a `vercel.json` configuration file:
+
+```json vercel.json
+{
+  "version": 2,
+  "builds": [
+    {
+      "src": "server.js",
+      "use": "@vercel/node",
+      "config": {
+        "includeFiles": ["dist/**"]
+      }
+    }
+  ],
+  "routes": [
+    {
+      "src": "/(.*)",
+      "dest": "server.js"
+    }
+  ]
+}
+```
+
+This configuration:
+- Uses `@vercel/node` builder for serverless functions
+- Routes all requests to `server.js`
+- Includes distribution files if needed
+
+## Server architecture
+
+### Entry point (server.js)
+
+The server exports the HTTP server for Vercel serverless deployment:
+
+```javascript server.js
+// Only listen on port in development
+if (process.env.NODE_ENV !== "production") {
+  const PORT = process.env.PORT || 5000;
+  server.listen(PORT, () => console.log("Server is running on " + PORT));
+}
+
+// Export for Vercel
+export default server;
+```
+
+### Socket.IO configuration
+
+```javascript server.js
+const io = new Server(server, {
+  cors: { origin: "*" },
+});
+```
+
+<Warning>
+In production, update the CORS origin to your specific client domain for security:
+
+```javascript
+cors: { origin: "https://your-client.vercel.app" }
+```
+</Warning>
+
+### API routes
+
+The server exposes these endpoints:
+
+- `GET /api/status` - Health check endpoint
+- `/api/auth/*` - Authentication routes (login, register, check, update-profile)
+- `/api/messages/*` - Message routes (send, get conversations, get messages)
+
+## Environment variables
+
+<ParamField path="MONDODB_URI" type="string" required>
+  MongoDB connection string. The database name `chat-app` is appended automatically.
+  
+  Example: `mongodb+srv://user:pass@cluster.mongodb.net`
+</ParamField>
+
+<ParamField path="JWT_SECRET" type="string" required>
+  Secret key for signing JWT tokens. Use a long, random string.
+  
+  Generate one with: `openssl rand -base64 32`
+</ParamField>
+
+<ParamField path="CLOUDINARY_CLOUD_NAME" type="string" required>
+  Your Cloudinary cloud name from the dashboard.
+</ParamField>
+
+<ParamField path="CLOUDINARY_API_KEY" type="string" required>
+  Your Cloudinary API key from the dashboard.
+</ParamField>
+
+<ParamField path="CLOUDINARY_API_SECRET" type="string" required>
+  Your Cloudinary API secret from the dashboard.
+</ParamField>
+
+<ParamField path="NODE_ENV" type="string">
+  Set to `production` for production deployments. Controls server listening behavior.
+</ParamField>
+
+<ParamField path="PORT" type="number">
+  Server port for local development. Defaults to `5000`. Not used in serverless deployment.
+</ParamField>
+
+[View complete environment variables reference →](/deployment/environment)
+
+## Alternative platforms
+
+### Railway
+
+<Steps>
+  <Step title="Create new project">
+    1. Go to [Railway](https://railway.app/)
+    2. Click "New Project"
+    3. Select "Deploy from GitHub repo"
+  </Step>
+  
+  <Step title="Configure">
+    Railway will detect Node.js automatically. Add environment variables in the project settings.
+  </Step>
+  
+  <Step title="Deploy">
+    Railway will automatically deploy and provide a public URL.
+  </Step>
+</Steps>
+
+### Render
+
+<Steps>
+  <Step title="Create Web Service">
+    1. Go to [Render](https://render.com/)
+    2. Click "New" → "Web Service"
+    3. Connect your GitHub repository
+  </Step>
+  
+  <Step title="Configure build">
+    - Build Command: (leave empty)
+    - Start Command: `node server.js`
+    - Add environment variables
+  </Step>
+</Steps>
+
+## Testing the deployment
+
+After deployment, verify these endpoints:
+
+<Steps>
+  <Step title="Check health endpoint">
+    ```bash
+    curl https://your-server.vercel.app/api/status
+    ```
+    
+    Should return: `Server is live`
+  </Step>
+  
+  <Step title="Test database connection">
+    Check the deployment logs in Vercel dashboard for:
+    ```
+    Database Connected
+    ```
+  </Step>
+  
+  <Step title="Test authentication">
+    Register a test user:
+    
+    ```bash
+    curl -X POST https://your-server.vercel.app/api/auth/register \
+      -H "Content-Type: application/json" \
+      -d '{"email":"test@example.com","password":"password123","fullName":"Test User"}'
+    ```
+  </Step>
+  
+  <Step title="Test Socket.IO connection">
+    Use the client application to connect and verify:
+    - WebSocket connection establishes
+    - Online users are tracked
+    - Real-time messages are delivered
+  </Step>
+</Steps>
+
+## Troubleshooting
+
+<AccordionGroup>
+  <Accordion title="Database connection fails">
+    - Verify MongoDB Atlas network access allows `0.0.0.0/0`
+    - Check the connection string format and credentials
+    - Ensure `MONDODB_URI` environment variable is set (note: typo in code uses `MONDODB_URI` not `MONGODB_URI`)
+    - Check deployment logs for connection errors
+  </Accordion>
+  
+  <Accordion title="Cloudinary uploads fail">
+    - Verify all three Cloudinary environment variables are set correctly
+    - Check API credentials in Cloudinary dashboard
+    - Ensure image size doesn't exceed limits (4MB max set in `server.js:40`)
+  </Accordion>
+  
+  <Accordion title="JWT authentication errors">
+    - Verify `JWT_SECRET` is set and consistent across deployments
+    - Check that tokens are being sent in the `token` header (not `Authorization`)
+    - Ensure tokens are valid and not expired
+  </Accordion>
+  
+  <Accordion title="CORS errors from client">
+    Update Socket.IO CORS configuration to allow your client domain:
+    
+    ```javascript
+    const io = new Server(server, {
+      cors: { 
+        origin: "https://your-client.vercel.app",
+        credentials: true 
+      },
+    });
+    ```
+  </Accordion>
+  
+  <Accordion title="Socket.IO not connecting">
+    - Verify the client is using the correct server URL
+    - Check that WebSocket connections are allowed by your hosting platform
+    - Ensure CORS is properly configured for Socket.IO
+  </Accordion>
+</AccordionGroup>
+
+## Production checklist
+
+<Check>Configure CORS to allow only your client domain</Check>
+<Check>Use strong, randomly generated JWT secret</Check>
+<Check>Enable MongoDB authentication and network restrictions</Check>
+<Check>Set up monitoring and error logging</Check>
+<Check>Configure rate limiting for API endpoints</Check>
+<Check>Enable HTTPS/SSL on your domain</Check>
+<Check>Set up database backups</Check>
+<Check>Review and secure all environment variables</Check>
+
+## Next steps
+
+<CardGroup cols={2}>
+  <Card title="Client deployment" icon="react" href="/deployment/client">
+    Deploy the React frontend
+  </Card>
+  
+  <Card title="Environment variables" icon="key" href="/deployment/environment">
+    Complete environment variables reference
+  </Card>
+</CardGroup>

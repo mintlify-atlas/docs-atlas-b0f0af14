@@ -1,0 +1,128 @@
+---
+title: Sign up
+description: Create a new user account
+---
+
+## Endpoint
+
+```
+POST /api/auth/signup
+```
+
+**Authentication:** Not required
+
+## Request body
+
+<ParamField name="fullName" type="string" required>
+  Full name of the user
+</ParamField>
+
+<ParamField name="email" type="string" required>
+  Email address for the account
+</ParamField>
+
+<ParamField name="password" type="string" required>
+  Password for the account (minimum 6 characters)
+</ParamField>
+
+<ParamField name="bio" type="string" required>
+  User biography or description
+</ParamField>
+
+## Response
+
+<ResponseField name="success" type="boolean">
+  Indicates if the request was successful
+</ResponseField>
+
+<ResponseField name="userData" type="object">
+  The created user object
+  
+  <ResponseField name="_id" type="string">
+    Unique user identifier
+  </ResponseField>
+  
+  <ResponseField name="fullName" type="string">
+    Full name of the user
+  </ResponseField>
+  
+  <ResponseField name="email" type="string">
+    Email address of the user
+  </ResponseField>
+  
+  <ResponseField name="bio" type="string">
+    User biography
+  </ResponseField>
+  
+  <ResponseField name="profilePic" type="string">
+    URL to profile picture (empty string by default)
+  </ResponseField>
+  
+  <ResponseField name="createdAt" type="string">
+    Account creation timestamp
+  </ResponseField>
+  
+  <ResponseField name="updatedAt" type="string">
+    Last update timestamp
+  </ResponseField>
+</ResponseField>
+
+<ResponseField name="token" type="string">
+  JWT authentication token
+</ResponseField>
+
+<ResponseField name="message" type="string">
+  Success or error message
+</ResponseField>
+
+## Example request
+
+```bash
+curl -X POST https://api.quickchat.com/api/auth/signup \
+  -H "Content-Type: application/json" \
+  -d '{
+    "fullName": "John Doe",
+    "email": "john@example.com",
+    "password": "securepassword123",
+    "bio": "Software developer and chat enthusiast"
+  }'
+```
+
+## Example response
+
+```json
+{
+  "success": true,
+  "userData": {
+    "_id": "507f1f77bcf86cd799439011",
+    "fullName": "John Doe",
+    "email": "john@example.com",
+    "bio": "Software developer and chat enthusiast",
+    "profilePic": "",
+    "createdAt": "2026-03-03T10:30:00.000Z",
+    "updatedAt": "2026-03-03T10:30:00.000Z"
+  },
+  "token": "eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9...",
+  "message": "Account created successfully"
+}
+```
+
+## Error responses
+
+### Missing details
+
+```json
+{
+  "success": false,
+  "message": "Missing details"
+}
+```
+
+### Account already exists
+
+```json
+{
+  "success": false,
+  "message": "Account already exists"
+}
+```

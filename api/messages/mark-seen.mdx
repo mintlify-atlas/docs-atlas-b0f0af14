@@ -1,0 +1,56 @@
+---
+title: Mark message as seen
+description: Mark a specific message as seen by the authenticated user
+---
+
+## PUT /api/messages/mark/:id
+
+Marks a specific message as seen. This endpoint updates the `seen` field of the message to `true`, indicating that the receiver has viewed the message.
+
+### Authentication
+
+This endpoint requires authentication using the `protectRoute` middleware. Include a valid JWT token in the request.
+
+### Path parameters
+
+<ParamField path="id" type="string" required>
+  The unique ID of the message to mark as seen
+</ParamField>
+
+### Response
+
+<ResponseField name="success" type="boolean">
+  Indicates whether the message was successfully marked as seen
+</ResponseField>
+
+<ResponseField name="message" type="string">
+  Error message (only present when success is false)
+</ResponseField>
+
+### Example request
+
+```bash
+curl -X PUT https://api.quickchat.com/api/messages/mark/65f8a3b2c1d4e5f6a7b8c9d0 \
+  -H "Authorization: Bearer YOUR_JWT_TOKEN"
+```
+
+### Example response
+
+```json
+{
+  "success": true
+}
+```
+
+### Error response
+
+```json
+{
+  "success": false,
+  "message": "Error message describing what went wrong"
+}
+```
+
+<Note>
+While this endpoint allows marking individual messages as seen, the GET /api/messages/:id endpoint automatically marks all messages from a user as seen when retrieving the conversation.
+</Note>

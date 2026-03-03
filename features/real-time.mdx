@@ -1,0 +1,184 @@
+---
+title: Real-time features
+description: Instant message delivery and online status tracking with WebSocket technology
+---
+
+QuickChat uses WebSocket technology to provide real-time communication, ensuring messages are delivered instantly and you always know who's online.
+
+## How real-time works
+
+QuickChat leverages Socket.IO to create persistent connections between your browser and the server. This allows:
+
+- **Instant message delivery** without page refreshes
+- **Live online status** updates
+- **Real-time notifications** for new messages
+
+<Note>
+WebSocket connections are established automatically when you log in - no setup required!
+</Note>
+
+## Instant message delivery
+
+Messages are delivered in real-time using WebSocket technology:
+
+<Steps>
+  <Step title="You send a message">
+    Type and send a message to any user in your conversation.
+  </Step>
+  
+  <Step title="Server processes instantly">
+    The server receives and validates your message immediately.
+  </Step>
+  
+  <Step title="Recipient gets it live">
+    If the recipient is online, they receive your message instantly without refreshing.
+  </Step>
+</Steps>
+
+### Benefits of real-time messaging
+
+<CardGroup cols={2}>
+  <Card title="Zero delay" icon="bolt">
+    Messages appear the moment they're sent
+  </Card>
+  
+  <Card title="No refresh needed" icon="rotate">
+    See new messages without reloading the page
+  </Card>
+  
+  <Card title="Live conversations" icon="comments">
+    Chat naturally like you would in person
+  </Card>
+  
+  <Card title="Instant feedback" icon="check">
+    Know immediately when messages are delivered
+  </Card>
+</CardGroup>
+
+## Online status tracking
+
+QuickChat tracks which users are currently active on the platform:
+
+### Green dot indicator
+
+When a user is online, you'll see:
+- A **green dot** next to their name in the chat header
+- This indicator updates instantly when users come online or go offline
+
+### How it works
+
+1. **Connection established**: When you log in, a WebSocket connection links your account to a unique socket ID
+2. **Status broadcast**: The server notifies all connected users that you're online
+3. **Live updates**: As users connect and disconnect, everyone's online status updates automatically
+4. **Clean disconnects**: When you close QuickChat, you're removed from the online users list
+
+<Tip>
+The online status feature helps you know when your messages will be seen in real-time versus when the recipient is away.
+</Tip>
+
+## WebSocket connection
+
+Your real-time connection is managed seamlessly:
+
+### Automatic connection
+
+- **On login**: A WebSocket connection is established using your user ID
+- **Persistent**: The connection stays active as long as you're using QuickChat
+- **Secure**: All real-time data is transmitted securely
+
+### Connection states
+
+<CardGroup cols={2}>
+  <Card title="Connected" icon="link">
+    You're online and can send/receive messages instantly
+  </Card>
+  
+  <Card title="Disconnected" icon="link-slash">
+    Connection lost - messages will sync when you reconnect
+  </Card>
+</CardGroup>
+
+## Real-time events
+
+QuickChat handles several real-time events:
+
+### New message event
+
+When someone sends you a message:
+1. The server emits a `newMessage` event to your socket
+2. Your chat interface updates instantly
+3. The message appears in your conversation
+4. Unread count updates if you're viewing a different chat
+
+### Online users event
+
+When users connect or disconnect:
+1. The server emits a `getOnlineUsers` event
+2. All connected clients receive the updated list
+3. Green dots appear or disappear next to user names
+4. The online status reflects the current state
+
+## Technical implementation
+
+QuickChat's real-time features are powered by:
+
+- **Socket.IO**: Industry-standard WebSocket library
+- **User-socket mapping**: Each user ID is mapped to their unique socket connection
+- **Event-driven architecture**: Messages and status updates trigger specific events
+- **Broadcast system**: Status changes are broadcast to all connected users
+
+<Note>
+The server maintains a map of user IDs to socket IDs, enabling targeted message delivery and accurate online status tracking.
+</Note>
+
+## Connection reliability
+
+QuickChat is designed to handle connection issues gracefully:
+
+### Automatic reconnection
+
+Socket.IO automatically attempts to reconnect if your connection drops due to:
+- Network interruptions
+- Server restarts
+- Browser tab becoming inactive
+
+### Message queuing
+
+If you're temporarily disconnected:
+- Messages sent to you are stored in the database
+- When you reconnect, your chat history is fully synchronized
+- No messages are lost during disconnection periods
+
+## Privacy and security
+
+Real-time features maintain your privacy:
+
+- **Private conversations**: Messages are only sent to the intended recipient's socket
+- **Secure transmission**: All WebSocket data is transmitted over secure connections
+- **No broadcast to all**: Your messages aren't visible to other users
+
+## Performance optimization
+
+QuickChat's real-time system is optimized for performance:
+
+<CardGroup cols={2}>
+  <Card title="Efficient sockets" icon="gauge-high">
+    One socket connection per user, not per conversation
+  </Card>
+  
+  <Card title="Targeted delivery" icon="bullseye">
+    Messages are sent only to specific recipients
+  </Card>
+  
+  <Card title="Minimal data" icon="database">
+    Only essential information is transmitted
+  </Card>
+  
+  <Card title="Auto cleanup" icon="broom">
+    Disconnected sockets are removed immediately
+  </Card>
+</CardGroup>
+
+<Tip>
+Real-time features work seamlessly in the background - you can enjoy instant messaging without thinking about the technical details!
+</Tip>

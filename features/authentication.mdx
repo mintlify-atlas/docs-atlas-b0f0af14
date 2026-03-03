@@ -1,0 +1,93 @@
+---
+title: Authentication
+description: Secure user authentication with email and password
+---
+
+QuickChat provides a secure authentication system that allows users to create accounts and sign in to start chatting.
+
+## How authentication works
+
+QuickChat uses email-based authentication with encrypted password storage. When you create an account, your password is securely hashed using bcrypt before being stored in the database.
+
+<Note>
+All passwords must be at least 6 characters long for security purposes.
+</Note>
+
+## Creating an account
+
+New users can sign up for QuickChat in just a few steps:
+
+<Steps>
+  <Step title="Enter your basic information">
+    Provide your full name, email address, and password on the sign-up form.
+  </Step>
+  
+  <Step title="Add a bio">
+    Write a short bio that tells other users about yourself. This will be visible on your profile.
+  </Step>
+  
+  <Step title="Complete registration">
+    Click "Create Account" to finalize your registration. Your account will be created instantly.
+  </Step>
+</Steps>
+
+### What you'll need
+
+<CardGroup cols={2}>
+  <Card title="Full name" icon="user">
+    Your display name that other users will see
+  </Card>
+  
+  <Card title="Email address" icon="envelope">
+    A valid email address for your account login
+  </Card>
+  
+  <Card title="Password" icon="lock">
+    A secure password (minimum 6 characters)
+  </Card>
+  
+  <Card title="Bio" icon="message">
+    A brief description about yourself
+  </Card>
+</CardGroup>
+
+## Signing in
+
+Returning users can access their account by:
+
+1. Navigate to the login page
+2. Enter your registered email address
+3. Enter your password
+4. Click "Login Now"
+
+<Tip>
+If you already have an account, you can quickly switch from the sign-up form to the login form by clicking "Login here" at the bottom of the page.
+</Tip>
+
+## Account security
+
+QuickChat takes your security seriously:
+
+- **Password encryption**: All passwords are hashed using bcrypt with a salt factor of 10
+- **JWT tokens**: Secure authentication tokens are used to maintain your session
+- **Email uniqueness**: Each email address can only be registered once
+
+## Switching between signup and login
+
+The authentication page makes it easy to switch between creating a new account and logging in:
+
+- From the **signup form**: Click "Login here" if you already have an account
+- From the **login form**: Click "Click here" under "Create an account" to register
+
+## After logging in
+
+Once authenticated, you'll be redirected to the main chat interface where you can:
+
+- See all available users in the sidebar
+- Start conversations instantly
+- Update your profile settings
+- View your online status
+
+<Note>
+Your authentication session is maintained securely using JWT tokens, so you won't need to log in again unless you explicitly log out or your session expires.
+</Note>

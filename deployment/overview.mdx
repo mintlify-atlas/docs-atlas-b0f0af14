@@ -1,0 +1,124 @@
+---
+title: Deployment overview
+description: Learn how to deploy QuickChat to production with separate client and server deployments
+---
+
+QuickChat is a full-stack real-time chat application that requires deploying two separate components: the React client and the Express server. This guide covers the complete deployment process.
+
+## Architecture
+
+QuickChat uses a decoupled architecture:
+
+- **Client**: React application built with Vite, deployed as a static site
+- **Server**: Express.js API with Socket.IO for real-time communication
+- **Database**: MongoDB for data persistence
+- **Storage**: Cloudinary for image uploads and profile pictures
+
+<Note>
+The client and server are deployed separately and communicate via HTTP requests and WebSocket connections.
+</Note>
+
+## Deployment flow
+
+<Steps>
+  <Step title="Set up MongoDB database">
+    Create a MongoDB Atlas cluster or prepare your MongoDB instance. You'll need the connection URI for the server configuration.
+  </Step>
+  
+  <Step title="Configure Cloudinary">
+    Set up a Cloudinary account for handling image uploads. Obtain your cloud name, API key, and API secret.
+  </Step>
+  
+  <Step title="Deploy the server">
+    Deploy the Express server to Vercel or your preferred Node.js hosting platform. Configure all required environment variables.
+    
+    [See server deployment guide →](/deployment/server)
+  </Step>
+  
+  <Step title="Deploy the client">
+    Build and deploy the React client to Vercel or your preferred static hosting platform. Configure the backend URL.
+    
+    [See client deployment guide →](/deployment/client)
+  </Step>
+  
+  <Step title="Test the deployment">
+    Verify that both client and server are running and can communicate properly. Test authentication, messaging, and real-time features.
+  </Step>
+</Steps>
+
+## Platform recommendations
+
+### Vercel (recommended)
+
+Both the client and server include `vercel.json` configuration files for seamless deployment to Vercel:
+
+- **Client**: Configured with URL rewrites for client-side routing
+- **Server**: Configured with `@vercel/node` builder for serverless functions
+
+<Tip>
+Vercel offers automatic deployments from GitHub, built-in SSL certificates, and global CDN distribution.
+</Tip>
+
+### Alternative platforms
+
+<CardGroup cols={2}>
+  <Card title="Client alternatives" icon="globe">
+    - Netlify
+    - Cloudflare Pages
+    - AWS Amplify
+    - GitHub Pages
+  </Card>
+  
+  <Card title="Server alternatives" icon="server">
+    - Railway
+    - Render
+    - AWS EC2/ECS
+    - DigitalOcean
+  </Card>
+</CardGroup>
+
+## Environment configuration
+
+QuickChat requires several environment variables to function properly:
+
+<CardGroup cols={2}>
+  <Card title="Client variables" icon="react">
+    - `VITE_BACKEND_URL` - Server API endpoint
+  </Card>
+  
+  <Card title="Server variables" icon="node">
+    - `MONDODB_URI` - MongoDB connection string
+    - `JWT_SECRET` - Secret key for JWT tokens
+    - `CLOUDINARY_CLOUD_NAME` - Cloudinary cloud name
+    - `CLOUDINARY_API_KEY` - Cloudinary API key
+    - `CLOUDINARY_API_SECRET` - Cloudinary API secret
+    - `NODE_ENV` - Environment (production/development)
+    - `PORT` - Server port (optional)
+  </Card>
+</CardGroup>
+
+[View complete environment variables reference →](/deployment/environment)
+
+## Security considerations
+
+<Warning>
+Never commit environment variables or secrets to version control. Always use your platform's environment variable management.
+</Warning>
+
+- Use strong, randomly generated JWT secrets
+- Enable CORS only for your client domain in production
+- Use MongoDB connection strings with authentication
+- Keep Cloudinary API secrets secure
+- Enable SSL/HTTPS for both client and server
+
+## Next steps
+
+<CardGroup cols={2}>
+  <Card title="Deploy the server" icon="server" href="/deployment/server">
+    Deploy the Express backend with Socket.IO support
+  </Card>
+  
+  <Card title="Deploy the client" icon="react" href="/deployment/client">
+    Build and deploy the React frontend
+  </Card>
+</CardGroup>

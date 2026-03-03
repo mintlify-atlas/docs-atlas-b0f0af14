@@ -1,0 +1,512 @@
+---
+title: Installation
+description: Detailed installation instructions for QuickChat development and production environments
+---
+
+## System requirements
+
+Before installing QuickChat, ensure your system meets these requirements:
+
+<CardGroup cols={2}>
+  <Card title="Development">
+    - Node.js v16+ (v18 recommended)
+    - npm v8+ or yarn v1.22+
+    - MongoDB v5.0+ or Atlas account
+    - Git
+    - 2GB free disk space
+  </Card>
+  <Card title="Production">
+    - Node.js v18+ LTS
+    - MongoDB Atlas or managed MongoDB
+    - Cloudinary account (for images)
+    - SSL certificate (recommended)
+    - 4GB+ RAM
+  </Card>
+</CardGroup>
+
+## Installation methods
+
+<Tabs>
+  <Tab title="Local development">
+    ### Step 1: Clone the repository
+
+    Clone the QuickChat repository from your version control system:
+
+    ```bash
+    git clone <your-repository-url>
+    cd quickchat
+    ```
+
+    ### Step 2: Install server dependencies
+
+    Navigate to the server directory and install all required packages:
+
+    ```bash
+    cd source/server
+    npm install
+    ```
+
+    <Accordion title="Server dependencies breakdown">
+      The server `package.json` includes:
+
+      ```json package.json
+      {
+        "dependencies": {
+          "bcryptjs": "^3.0.2",        // Password hashing
+          "cloudinary": "^2.6.1",     // Image upload service
+          "cors": "^2.8.5",           // Cross-origin resource sharing
+          "dotenv": "^16.5.0",        // Environment variable management
+          "express": "^5.1.0",        // Web framework
+          "jsonwebtoken": "^9.0.2",   // JWT authentication
+          "mongoose": "^8.15.0",      // MongoDB ODM
+          "socket.io": "^4.8.1"       // Real-time communication
+        }
+      }
+      ```
+    </Accordion>
+
+    ### Step 3: Set up MongoDB
+
+    <AccordionGroup>
+      <Accordion title="Option A: Local MongoDB">
+        Install MongoDB locally:
+
+        **macOS (Homebrew):**
+        ```bash
+        brew tap mongodb/brew
+        brew install mongodb-community
+        brew services start mongodb-community
+        ```
+
+        **Ubuntu/Debian:**
+        ```bash
+        sudo apt-get install mongodb
+        sudo systemctl start mongodb
+        sudo systemctl enable mongodb
+        ```
+
+        **Windows:**
+        Download and install from [mongodb.com/download-center/community](https://www.mongodb.com/try/download/community)
+
+        Verify MongoDB is running:
+        ```bash
+        mongosh
+        # Should connect to mongodb://localhost:27017
+        ```
+      </Accordion>
+
+      <Accordion title="Option B: MongoDB Atlas (Cloud)">
+        1. Create a free account at [mongodb.com/atlas](https://www.mongodb.com/cloud/atlas)
+        2. Create a new cluster (free tier available)
+        3. Create a database user with read/write permissions
+        4. Whitelist your IP address (or use 0.0.0.0/0 for development)
+        5. Get your connection string:
+           ```
+           mongodb+srv://<username>:<password>@cluster0.xxxxx.mongodb.net
+           ```
+      </Accordion>
+    </AccordionGroup>
+
+    ### Step 4: Configure server environment
+
+    Create a `.env` file in the `source/server` directory:
+
+    ```bash .env
+    # Server Configuration
+    PORT=5000
+    NODE_ENV=development
+
+    # Database Configuration
+    # For local MongoDB:
+    MONDODB_URI=mongodb://localhost:27017
+    
+    # For MongoDB Atlas:
+    # MONDODB_URI=mongodb+srv://username:password@cluster0.xxxxx.mongodb.net
+
+    # Authentication
+    JWT_SECRET=your_super_secret_jwt_key_minimum_32_characters_long
+
+    # Cloudinary Configuration (for image uploads)
+    CLOUDINARY_CLOUD_NAME=your_cloud_name
+    CLOUDINARY_API_KEY=your_api_key
+    CLOUDINARY_API_SECRET=your_api_secret
+    ```
+
+    <Warning>
+      **Security best practices:**
+      - Never commit `.env` files to version control
+      - Use strong, random values for `JWT_SECRET`
+      - Rotate secrets regularly in production
+      - Use different credentials for development and production
+    </Warning>
+
+    <Tip>
+      Generate a secure JWT secret:
+      ```bash
+      node -e "console.log(require('crypto').randomBytes(32).toString('hex'))"
+      ```
+    </Tip>
+
+    ### Step 5: Set up Cloudinary
+
+    QuickChat uses Cloudinary for image storage:
+
+    1. Create a free account at [cloudinary.com](https://cloudinary.com)
+    2. Go to your dashboard
+    3. Copy your Cloud Name, API Key, and API Secret
+    4. Add them to your `.env` file
+
+    ```javascript Cloudinary configuration
+    // From source/server/lib/cloudinary.js
+    import { v2 as cloudinary } from "cloudinary";
+
+    cloudinary.config({
+      cloud_name: process.env.CLOUDINARY_CLOUD_NAME,
+      api_key: process.env.CLOUDINARY_API_KEY,
+      api_secret: process.env.CLOUDINARY_API_SECRET,
+    });
+    ```
+
+    ### Step 6: Install client dependencies
+
+    Navigate to the client directory and install packages:
+
+    ```bash
+    cd ../client
+    npm install
+    ```
+
+    <Accordion title="Client dependencies breakdown">
+      ```json package.json
+      {
+        "dependencies": {
+          "@tailwindcss/vite": "^4.1.7",
+          "axios": "^1.9.0",
+          "react": "^19.1.0",
+          "react-dom": "^19.1.0",
+          "react-hot-toast": "^2.5.2",     // Toast notifications
+          "react-router-dom": "^7.6.0",    // Client-side routing
+          "socket.io-client": "^4.8.1",    // WebSocket client
+          "tailwindcss": "^4.1.7"
+        }
+      }
+      ```
+    </Accordion>
+
+    ### Step 7: Configure client environment
+
+    Create a `.env` file in the `source/client` directory:
+
+    ```bash .env
+    VITE_BACKEND_URL=http://localhost:5000
+    ```
+
+    <Note>
+      Vite requires environment variables to be prefixed with `VITE_` to expose them to the client application.
+    </Note>
+
+    ### Step 8: Start the application
+
+    Open two terminal windows:
+
+    **Terminal 1 - Server:**
+    ```bash
+    cd source/server
+    npm start
+    ```
+
+    Expected output:
+    ```
+    Database Connected
+    Server is running on 5000
+    ```
+
+    **Terminal 2 - Client:**
+    ```bash
+    cd source/client
+    npm run dev
+    ```
+
+    Expected output:
+    ```
+    VITE v6.3.5  ready in 523 ms
+
+    ➜  Local:   http://localhost:5173/
+    ➜  Network: use --host to expose
+    ```
+
+    ### Step 9: Verify installation
+
+    1. Open `http://localhost:5173` in your browser
+    2. You should see the QuickChat login page
+    3. Create a test account to verify database connectivity
+    4. Check server logs for successful Socket.IO connection
+
+    ```bash
+    # Server should log:
+    User connected 507f1f77bcf86cd799439011
+    ```
+  </Tab>
+
+  <Tab title="Production setup">
+    ### Production deployment checklist
+
+    <Steps>
+      <Step title="Environment variables">
+        Set up production environment variables:
+
+        ```bash .env.production
+        NODE_ENV=production
+        PORT=5000
+
+        # Use MongoDB Atlas for production
+        MONDODB_URI=mongodb+srv://username:password@production-cluster.mongodb.net
+
+        # Strong JWT secret (different from development)
+        JWT_SECRET=<64-character-random-string>
+
+        # Production Cloudinary account
+        CLOUDINARY_CLOUD_NAME=prod_cloud_name
+        CLOUDINARY_API_KEY=prod_api_key
+        CLOUDINARY_API_SECRET=prod_api_secret
+        ```
+
+        Client production variables:
+        ```bash .env.production
+        VITE_BACKEND_URL=https://api.yourdomain.com
+        ```
+      </Step>
+
+      <Step title="Build the client">
+        Create an optimized production build:
+
+        ```bash
+        cd source/client
+        npm run build
+        ```
+
+        This creates a `dist` folder with optimized static files.
+      </Step>
+
+      <Step title="Configure CORS">
+        Update CORS settings for production in `server.js`:
+
+        ```javascript server.js
+        import cors from "cors";
+
+        const allowedOrigins = [
+          "https://yourdomain.com",
+          "https://www.yourdomain.com"
+        ];
+
+        app.use(cors({
+          origin: allowedOrigins,
+          credentials: true
+        }));
+
+        const io = new Server(server, {
+          cors: { 
+            origin: allowedOrigins,
+            credentials: true 
+          },
+        });
+        ```
+      </Step>
+
+      <Step title="Deploy to hosting">
+        QuickChat can be deployed to various platforms:
+
+        <Accordion title="Vercel (Recommended for client)">
+          The client includes `vercel.json` configuration:
+
+          ```bash
+          cd source/client
+          vercel --prod
+          ```
+
+          Set environment variables in Vercel dashboard:
+          - `VITE_BACKEND_URL`
+        </Accordion>
+
+        <Accordion title="Render / Railway (Server)">
+          1. Connect your repository
+          2. Set build command: `npm install`
+          3. Set start command: `npm start`
+          4. Add environment variables in dashboard
+          5. Deploy
+        </Accordion>
+
+        <Accordion title="VPS (Digital Ocean, AWS EC2, etc.)">
+          ```bash
+          # Install Node.js
+          curl -fsSL https://deb.nodesource.com/setup_18.x | sudo -E bash -
+          sudo apt-get install -y nodejs
+
+          # Clone and setup
+          git clone <your-repo>
+          cd quickchat/source/server
+          npm install
+
+          # Use PM2 for process management
+          npm install -g pm2
+          pm2 start server.js --name quickchat-server
+          pm2 startup
+          pm2 save
+          ```
+        </Accordion>
+      </Step>
+
+      <Step title="SSL/HTTPS setup">
+        <Warning>
+          Socket.IO requires HTTPS in production for secure WebSocket connections.
+        </Warning>
+
+        Use Let's Encrypt for free SSL certificates:
+        ```bash
+        sudo apt-get install certbot
+        sudo certbot certonly --standalone -d api.yourdomain.com
+        ```
+      </Step>
+
+      <Step title="Monitor and scale">
+        - Set up logging (Winston, Morgan)
+        - Monitor server resources
+        - Configure database indexes for performance
+        - Implement rate limiting
+        - Set up error tracking (Sentry)
+      </Step>
+    </Steps>
+  </Tab>
+</Tabs>
+
+## Database setup details
+
+QuickChat creates two MongoDB collections:
+
+### Users collection
+
+```javascript models/user.js
+{
+  _id: ObjectId,
+  fullName: String,
+  email: String (unique),
+  password: String (hashed with bcrypt),
+  bio: String,
+  profilePic: String (Cloudinary URL),
+  createdAt: Date,
+  updatedAt: Date
+}
+```
+
+### Messages collection
+
+```javascript models/message.js
+{
+  _id: ObjectId,
+  senderId: ObjectId (ref: 'User'),
+  receiverId: ObjectId (ref: 'User'),
+  text: String,
+  image: String (Cloudinary URL),
+  seen: Boolean (default: false),
+  createdAt: Date,
+  updatedAt: Date
+}
+```
+
+<Tip>
+  For better performance, create indexes on frequently queried fields:
+  ```javascript
+  db.messages.createIndex({ senderId: 1, receiverId: 1 });
+  db.messages.createIndex({ createdAt: -1 });
+  ```
+</Tip>
+
+## Troubleshooting
+
+<AccordionGroup>
+  <Accordion title="Database connection failed">
+    **Error:** `MongoServerError: Authentication failed`
+
+    **Solutions:**
+    - Verify `MONDODB_URI` in `.env` is correct
+    - Check MongoDB is running: `mongosh`
+    - For Atlas: verify IP whitelist and user permissions
+    - Check typo: the env variable is `MONDODB_URI` (not MONGODB)
+  </Accordion>
+
+  <Accordion title="Socket.IO connection issues">
+    **Error:** `WebSocket connection failed`
+
+    **Solutions:**
+    - Verify `VITE_BACKEND_URL` matches server address
+    - Check CORS settings in `server.js`
+    - Ensure server is running before starting client
+    - In production, verify HTTPS is configured
+  </Accordion>
+
+  <Accordion title="Cloudinary upload fails">
+    **Error:** `Invalid cloud name or API key`
+
+    **Solutions:**
+    - Verify Cloudinary credentials in `.env`
+    - Check cloud name doesn't include spaces
+    - Ensure API key and secret are copied correctly
+    - Try uploading directly to Cloudinary dashboard to verify account
+  </Accordion>
+
+  <Accordion title="JWT authentication errors">
+    **Error:** `JsonWebTokenError: invalid signature`
+
+    **Solutions:**
+    - Ensure `JWT_SECRET` is set in server `.env`
+    - Don't change `JWT_SECRET` after creating tokens (invalidates all sessions)
+    - Clear localStorage in browser and re-login
+    - Verify token is being sent in request headers
+  </Accordion>
+
+  <Accordion title="Port already in use">
+    **Error:** `EADDRINUSE: address already in use :::5000`
+
+    **Solutions:**
+    ```bash
+    # Find and kill process using port 5000
+    lsof -ti:5000 | xargs kill -9
+    
+    # Or change PORT in .env
+    PORT=5001
+    ```
+  </Accordion>
+</AccordionGroup>
+
+## Next steps
+
+<CardGroup cols={2}>
+  <Card
+    title="API reference"
+    icon="book-open"
+    href="/api/auth/signup"
+  >
+    Explore authentication and messaging endpoints
+  </Card>
+  <Card
+    title="Configuration"
+    icon="gear"
+    href="/deployment/environment"
+  >
+    Learn about all environment variables and settings
+  </Card>
+  <Card
+    title="Architecture"
+    icon="diagram-project"
+    href="/architecture/overview"
+  >
+    Understand QuickChat's system design
+  </Card>
+  <Card
+    title="Deployment"
+    icon="rocket"
+    href="/deployment/overview"
+  >
+    Deploy QuickChat to production
+  </Card>
+</CardGroup>
